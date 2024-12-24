@@ -22,6 +22,9 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
 });
+app.get("/", (req, res) => {
+  res.send("Hello from the server!");
+});
 //for refresh
 app.post("/api/send-email", upload.single("file"), async (req, res) => {
   try {
