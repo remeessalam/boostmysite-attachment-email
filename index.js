@@ -30,7 +30,7 @@ app.post("/api/send-email", upload.single("file"), async (req, res) => {
   try {
     const { body, subject } = req.body;
     const file = req.file;
-    console.log(req.body);
+    // console.log(req.file);
     if (!body) {
       return res.status(400).json({ message: "Body is required" });
     }
@@ -86,6 +86,59 @@ app.post("/api/send-email", upload.single("file"), async (req, res) => {
   } catch (error) {
     console.error("Error sending email:", error);
     res.status(500).json({ message: "Failed to send email: " + error.message });
+  }
+});
+app.post("/api/send-signup", upload.array("file", 10), async (req, res) => {
+  try {
+    const { body, subject } = req.body;
+    const file = req.files;
+    console.log(req.files);
+    if (!body) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Body is required" });
+    }
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: "boostmysitescom@gmail.com",
+      subject: "Sign Up form details",
+      text: body,
+    };
+    const mailOptions2 = {
+      from: process.env.EMAIL_USER,
+      to: "remeesreme4u@gmail.com",
+      subject: "Sign Up form details",
+      text: body,
+    };
+
+    if (file) {
+      if (file && file.length > 0) {
+        mailOptions.attachments = file.map((file) => ({
+          filename: file.originalname,
+          content: file.buffer,
+        }));
+      }
+      if (file && file.length > 0) {
+        mailOptions2.attachments = file.map((file) => ({
+          filename: file.originalname,
+          content: file.buffer,
+        }));
+      }
+    }
+
+    // Send the email
+    await transporter.sendMail(mailOptions);
+    // await transporter.sendMail(mailOptions1);
+    await transporter.sendMail(mailOptions2);
+
+    res.json({ success: true, message: "Email sent successfully!" });
+  } catch (error) {
+    console.error("Error sending email:", error);
+    res.status(500).json({
+      success: true,
+      message: "Failed to send email: " + error.message,
+    });
   }
 });
 
