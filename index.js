@@ -92,12 +92,25 @@ app.post("/api/send-signup", upload.array("file", 10), async (req, res) => {
   try {
     const { body, subject } = req.body;
     const file = req.files;
-    console.log(req.files);
+    const emailMatch = body.match(/Email:\s*(\S+)/);
+    const email = emailMatch ? emailMatch[1] : null;
+    const nameMatch = body.match(/Name:\s*(\S+)/);
+    const name = nameMatch ? nameMatch[1] : null;
+    console.log(email);
     if (!body) {
       return res
         .status(400)
         .json({ success: false, message: "Body is required" });
     }
+
+    const messageToClient = `Hi ${name}, 
+
+                You have been successfully signed up with Boostmysites for starting your AI company with us. 
+
+                See you onboard soon! 
+
+                Regards, 
+                Boostmysites`;
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -110,6 +123,12 @@ app.post("/api/send-signup", upload.array("file", 10), async (req, res) => {
       to: "remeesreme4u@gmail.com",
       subject: "Sign Up form details",
       text: body,
+    };
+    const mailOptions4 = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Welcome to Boostmysites – Your AI Journey Begins!",
+      text: messageToClient,
     };
 
     if (file) {
@@ -129,9 +148,8 @@ app.post("/api/send-signup", upload.array("file", 10), async (req, res) => {
 
     // Send the email
     await transporter.sendMail(mailOptions);
-    // await transporter.sendMail(mailOptions1);
     await transporter.sendMail(mailOptions2);
-
+    await transporter.sendMail(mailOptions4);
     res.json({ success: true, message: "Email sent successfully!" });
   } catch (error) {
     console.error("Error sending email:", error);
