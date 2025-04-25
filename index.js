@@ -102,15 +102,109 @@ app.post("/api/send-signup", upload.array("file", 10), async (req, res) => {
         .status(400)
         .json({ success: false, message: "Body is required" });
     }
+    function capitalizeFirstLetter(string) {
+      if (!string) return "";
+      return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+    }
+    const capitalized = capitalizeFirstLetter(name);
+    // Create HTML version of the client email
+    const htmlMessageToClient = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Welcome to Boostmysites</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+          }
+          .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+          }
+          .header {
+            background-color: #FFAB23;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+          }
+          .content {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-left: 1px solid #dddddd;
+            border-right: 1px solid #dddddd;
+          }
+          .footer {
+            background-color: #eeeeee;
+            padding: 15px;
+            text-align: center;
+            font-size: 12px;
+            border-radius: 0 0 5px 5px;
+            border: 1px solid #dddddd;
+          }
+          .button {
+            display: inline-block;
+            background-color: #FFAB23;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>Welcome to Boostmysites!</h1>
+          </div>
+          <div class="content">
+            <p>Hi ${capitalized || "there"},</p>
+            
+            <p>You have been successfully signed up with Boostmysites for starting your AI company with us.</p>
+            
+            <p>We're excited to have you on board and can't wait to help you bring your AI vision to life!</p>
+            
+            <p>If you have any questions or need assistance, feel free to reply to this email.</p>
+            
+            <p>See you onboard soon!</p>
+            
+            <p>Regards,<br>
+            <strong>The Boostmysites Team</strong></p>
+          </div>
+          <div class="footer">
+            <p>© 2025 Boostmysites. All rights reserved.</p>
+            <p>This email was sent to ${
+              email || "you"
+            } because you signed up for our services.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
 
-    const messageToClient = `Hi ${name}, 
-
-                You have been successfully signed up with Boostmysites for starting your AI company with us. 
-
-                See you onboard soon! 
-
-                Regards, 
-                Boostmysites`;
+    // Plain text fallback version
+    const messageToClient = `
+      Hi ${capitalized || "there"},
+      
+      You have been successfully signed up with Boostmysites for starting your AI company with us.
+      
+      We're excited to have you on board and can't wait to help you bring your AI vision to life!
+      
+      If you have any questions or need assistance, feel free to reply to this email.
+      
+      See you onboard soon!
+      
+      Regards,
+      The Boostmysites Team
+      
+      © 2025 Boostmysites. All rights reserved.
+          `;
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -127,8 +221,13 @@ app.post("/api/send-signup", upload.array("file", 10), async (req, res) => {
     const mailOptions4 = {
       from: process.env.EMAIL_USER,
       to: email,
-      subject: "Welcome to Boostmysites – Your AI Journey Begins!",
+      subject: `${capitalized}, Welcome to Boostmysites – Your AI Journey Begins!`,
       text: messageToClient,
+      html: htmlMessageToClient,
+      // headers: {
+      //   "List-Unsubscribe": `<mailto:unsubscribe@boostmysites.com?subject=unsubscribe-${email}>`,
+      //   Precedence: "bulk",
+      // },
     };
 
     if (file) {
