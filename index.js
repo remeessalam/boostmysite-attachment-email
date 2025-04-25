@@ -219,11 +219,19 @@ app.post("/api/send-signup", upload.array("file", 10), async (req, res) => {
       text: body,
     };
     const mailOptions4 = {
-      from: process.env.EMAIL_USER,
+      from: { name: "Boostmysites", address: process.env.EMAIL_USER },
       to: email,
       subject: `${capitalized}, Welcome to Boostmysites – Your AI Journey Begins!`,
-      text: messageToClient,
+      // text: messageToClient,
       html: htmlMessageToClient,
+      headers: {
+        "X-Mailer": "NodeMailer",
+        "X-Priority": "3",
+        "X-MSMail-Priority": "Normal",
+        Importance: "Normal",
+      },
+      date: new Date(),
+
       // headers: {
       //   "List-Unsubscribe": `<mailto:unsubscribe@boostmysites.com?subject=unsubscribe-${email}>`,
       //   Precedence: "bulk",
